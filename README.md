@@ -2,4 +2,4 @@
 
 ### Udacity - Deep Reinforcement Learning Nanodegree Program
 
-[Taxi-v2](OpenAI/Taxi-v2)
+[Taxi-v2 (Solution)](OpenAI/Taxi-v2)
