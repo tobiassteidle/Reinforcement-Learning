@@ -1,6 +1,6 @@
 # Reinforcement-Learning
 
-### Udacity - Deep Reinforcement Learning Nanodegree Program
+### Repository for OpenAI and Unity-ML Reinforcement Learning environments.
 
 [Taxi-v2 (Solution)](OpenAI/Taxi-v2)  
 [LunarLanderContinuous-v2 (Solution)](OpenAI/LunarLander-v2)
