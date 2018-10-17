@@ -6,7 +6,7 @@ The environment to the MountainCarContinuous is described [here](https://github.
 ### Solution Video
 [![LunarLanderContinuous-v2](http://img.youtube.com/vi/RGKRfxfEFEA/0.jpg)](https://www.youtube.com/watch?v=RGKRfxfEFEA "MountainCarContinuous-v0")
 
-The video shows in the first part the behaviour of the untrained agent and then in comparison the behaviour of the trained agent.
+The video shows the solution of the environment after 32 episodes.
 
 ### Solution Info
 My learning algorithm is a Deep Deterministic Policy Gradient.
