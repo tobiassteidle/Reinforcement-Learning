@@ -3,6 +3,14 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
+# Hyperparameters
+gamma = 0.99                # discount for future rewards
+batch_size = 100            # num of transitions sampled from replay buffer
+polyak = 0.995              # target policy update parameter (1-tau)
+policy_noise = 0.2          # target policy smoothing noise
+noise_clip = 0.5
+policy_delay = 2            # delayed policy updates parameter
+
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class Actor(nn.Module):
@@ -61,7 +69,7 @@ class TD3:
         state = torch.FloatTensor(state.reshape(1, -1)).to(device)
         return self.actor(state).cpu().data.numpy().flatten()
 
-    def update(self, replay_buffer, n_iter, batch_size, gamma, polyak, policy_noise, noise_clip, policy_delay):
+    def update(self, replay_buffer, n_iter):
 
         for i in range(n_iter):
             # Sample a batch of transitions from replay buffer:
