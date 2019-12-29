@@ -1,0 +1,16 @@
+prompt_toolkit==2.0.10
+matplotlib
+numpy==1.16.4
+pandas
+opencv-python
+pillow
+imutils
+scikit-image
+tqdm
+tensorflow-gpu==2.0.0
+Keras==2.3.1
+h5py
+ipykernel
+jupyter
+gym
+gym[atari]
