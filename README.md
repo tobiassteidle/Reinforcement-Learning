@@ -11,4 +11,4 @@
 [BipedalWalker-v2 (Solution TD3)](OpenAI/BipedalWalker-v2)
 
 #### Tensorflow / Keras
-[CartPole-v1 (Solution DDQN, Duelling DQN (incl. Prioritized Replay Buffer (PER))](OpenAI/CartPole-v1)
+[CartPole-v1 (Solution DDQN, Duelling DQN (incl. Prioritized Replay Buffer (PER))](OpenAI/CartPole-v0)
