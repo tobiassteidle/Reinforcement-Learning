@@ -83,17 +83,17 @@ class TD3:
         weighted_squared_error = is_weights * td_error * td_error
         return torch.sum(weighted_squared_error) / torch.numel(weighted_squared_error)
 
-    def update(self, replay_buffer, learn_batch_size=100):
+    def update(self, replay_buffer, n_iter):
 
-        for i in range(learn_batch_size):
+        for i in range(n_iter):
             # Sample a batch of transitions from replay buffer:
-            idxs, experiences, is_weights = replay_buffer.sample(batch_size)
+            idxs, is_weights, experiences = replay_buffer.sample(batch_size)
 
-            state = torch.from_numpy(np.vstack([e[0] for e in experiences if e is not None])).float().to(device)
-            action = torch.from_numpy(np.vstack([e[1] for e in experiences if e is not None])).float().to(device)
-            reward = torch.from_numpy(np.vstack([e[2] for e in experiences if e is not None])).float().to(device)
-            next_state = torch.from_numpy(np.vstack([e[3] for e in experiences if e is not None])).float().to(device)
-            done = torch.from_numpy(np.vstack([e[4] for e in experiences if e is not None]).astype(np.uint8)).float().to(device)
+            state = torch.from_numpy(experiences[0]).float().to(device)
+            action = torch.from_numpy(experiences[1]).float().to(device)
+            reward = torch.from_numpy(experiences[2]).float().to(device)
+            next_state = torch.from_numpy(experiences[3]).float().to(device)
+            done = torch.from_numpy(experiences[4].astype(np.uint8)).float().to(device)
 
             is_weights =  torch.from_numpy(is_weights).float().to(device)
 
@@ -113,20 +113,17 @@ class TD3:
             current_Q1 = self.critic_1(state, action)
             errors1 = np.abs((current_Q1 - target_Q).detach().cpu().numpy())
             loss_Q1 = self.mse(current_Q1, target_Q, is_weights)
-            #loss_Q1 = F.mse_loss(current_Q1, target_Q)
-
 
             self.critic_1_optimizer.zero_grad()
             loss_Q1.backward()
             self.critic_1_optimizer.step()
 
             # Update priorities in the replay buffer
-            replay_buffer.batch_update(idxs, errors1)
+            replay_buffer.update(idxs, errors1)
 
             # Optimize Critic 2:
             current_Q2 = self.critic_2(state, action)
             loss_Q2 = self.mse(current_Q2, target_Q, is_weights)
-            #loss_Q2 = F.mse_loss(current_Q2, target_Q)
             self.critic_2_optimizer.zero_grad()
             loss_Q2.backward()
             self.critic_2_optimizer.step()
