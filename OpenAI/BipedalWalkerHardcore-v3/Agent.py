@@ -6,14 +6,17 @@ import numpy as np
 
 # Hyperparameters
 gamma = 0.99                # discount for future rewards
-batch_size = 1024            # num of transitions sampled from replay buffer
+#batch_size = 1024            # num of transitions sampled from replay buffer
+batch_size = 100            # num of transitions sampled from replay buffer
 polyak = 0.995              # target policy update parameter (1-tau)
 policy_noise = 0.2          # target policy smoothing noise
 noise_clip = 0.5
 
-policy_delay = 2            # delayed policy updates parameter
-LR_ACTOR = 5e-4
-LR_CRITIC = 5e-4 # 0.0005
+policy_delay = 2 #4 #2            # delayed policy updates parameter
+#LR_ACTOR = 3e-4
+#LR_CRITIC = 3e-4
+LR_ACTOR = 0.001
+LR_CRITIC = 0.001
 
 WEIGHT_DECAY = 0.0
 
@@ -109,8 +112,8 @@ class TD3:
             # Optimize Critic 1:
             current_Q1 = self.critic_1(state, action)
             errors1 = np.abs((current_Q1 - target_Q).detach().cpu().numpy())
-            #loss_Q1 = self.mse(current_Q1, target_Q, is_weights)
-            loss_Q1 = F.mse_loss(current_Q1, target_Q)
+            loss_Q1 = self.mse(current_Q1, target_Q, is_weights)
+            #loss_Q1 = F.mse_loss(current_Q1, target_Q)
 
 
             self.critic_1_optimizer.zero_grad()
@@ -122,8 +125,8 @@ class TD3:
 
             # Optimize Critic 2:
             current_Q2 = self.critic_2(state, action)
-            #loss_Q2 = self.mse(current_Q2, target_Q, is_weights)
-            loss_Q2 = F.mse_loss(current_Q2, target_Q)
+            loss_Q2 = self.mse(current_Q2, target_Q, is_weights)
+            #loss_Q2 = F.mse_loss(current_Q2, target_Q)
             self.critic_2_optimizer.zero_grad()
             loss_Q2.backward()
             self.critic_2_optimizer.step()
