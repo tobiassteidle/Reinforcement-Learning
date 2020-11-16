@@ -2,7 +2,7 @@ import numpy as np
 
 class PrioritizedReplayBuffer():
     def __init__(self,
-                 max_samples=10000,
+                 max_samples=5e5,
                  batch_size=64,
                  rank_based=False,
                  alpha=0.6,

@@ -6,15 +6,12 @@ import numpy as np
 
 # Hyperparameters
 gamma = 0.99                # discount for future rewards
-#batch_size = 1024            # num of transitions sampled from replay buffer
 batch_size = 100            # num of transitions sampled from replay buffer
 polyak = 0.995              # target policy update parameter (1-tau)
 policy_noise = 0.2          # target policy smoothing noise
 noise_clip = 0.5
 
-policy_delay = 2 #4 #2            # delayed policy updates parameter
-#LR_ACTOR = 3e-4
-#LR_CRITIC = 3e-4
+policy_delay = 2            # delayed policy updates parameter
 LR_ACTOR = 0.001
 LR_CRITIC = 0.001
 
@@ -83,19 +80,27 @@ class TD3:
         weighted_squared_error = is_weights * td_error * td_error
         return torch.sum(weighted_squared_error) / torch.numel(weighted_squared_error)
 
-    def update(self, replay_buffer, n_iter):
+    def update(self, replay_buffer, n_iter, usePER=False):
 
         for i in range(n_iter):
-            # Sample a batch of transitions from replay buffer:
-            idxs, is_weights, experiences = replay_buffer.sample(batch_size)
+            if usePER:
+                idxs, is_weights, experiences = replay_buffer.sample(batch_size)
 
-            state = torch.from_numpy(experiences[0]).float().to(device)
-            action = torch.from_numpy(experiences[1]).float().to(device)
-            reward = torch.from_numpy(experiences[2]).float().to(device)
-            next_state = torch.from_numpy(experiences[3]).float().to(device)
-            done = torch.from_numpy(experiences[4].astype(np.uint8)).float().to(device)
+                state = torch.from_numpy(experiences[0]).float().to(device)
+                action = torch.from_numpy(experiences[1]).float().to(device)
+                reward = torch.from_numpy(experiences[2]).float().to(device)
+                next_state = torch.from_numpy(experiences[3]).float().to(device)
+                done = torch.from_numpy(experiences[4].astype(np.uint8)).float().to(device)
 
-            is_weights =  torch.from_numpy(is_weights).float().to(device)
+                is_weights =  torch.from_numpy(is_weights).float().to(device)
+
+            else:
+                state, action_, reward, next_state, done = replay_buffer.sample(batch_size)
+                state = torch.FloatTensor(state).to(device)
+                action = torch.FloatTensor(action_).to(device)
+                reward = torch.FloatTensor(reward).reshape((batch_size,1)).to(device)
+                next_state = torch.FloatTensor(next_state).to(device)
+                done = torch.FloatTensor(done).reshape((batch_size,1)).to(device)
 
             # Select next action according to target policy:
             noise = torch.empty_like(action).data.normal_(0, policy_noise).to(device)
@@ -112,18 +117,28 @@ class TD3:
             # Optimize Critic 1:
             current_Q1 = self.critic_1(state, action)
             errors1 = np.abs((current_Q1 - target_Q).detach().cpu().numpy())
-            loss_Q1 = self.mse(current_Q1, target_Q, is_weights)
+
+            if usePER:
+                loss_Q1 = self.mse(current_Q1, target_Q, is_weights)
+            else:
+                loss_Q1 = F.mse_loss(current_Q1, target_Q)
 
             self.critic_1_optimizer.zero_grad()
             loss_Q1.backward()
             self.critic_1_optimizer.step()
 
             # Update priorities in the replay buffer
-            replay_buffer.update(idxs, errors1)
+            if usePER:
+                replay_buffer.update(idxs, errors1)
 
             # Optimize Critic 2:
             current_Q2 = self.critic_2(state, action)
-            loss_Q2 = self.mse(current_Q2, target_Q, is_weights)
+
+            if usePER:
+                loss_Q2 = self.mse(current_Q2, target_Q, is_weights)
+            else:
+                loss_Q2 = F.mse_loss(current_Q2, target_Q)
+
             self.critic_2_optimizer.zero_grad()
             loss_Q2.backward()
             self.critic_2_optimizer.step()
