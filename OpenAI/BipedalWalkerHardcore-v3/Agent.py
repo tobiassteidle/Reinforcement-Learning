@@ -75,32 +75,14 @@ class TD3:
         state = torch.FloatTensor(state.reshape(1, -1)).to(device)
         return self.actor(state).cpu().data.numpy().flatten()
 
-    def mse(self, expected, targets, is_weights):
-        td_error = expected - targets
-        weighted_squared_error = is_weights * td_error * td_error
-        return torch.sum(weighted_squared_error) / torch.numel(weighted_squared_error)
-
-    def update(self, replay_buffer, n_iter, usePER=False):
-
+    def update(self, replay_buffer, n_iter):
         for i in range(n_iter):
-            if usePER:
-                idxs, is_weights, experiences = replay_buffer.sample(batch_size)
-
-                state = torch.from_numpy(experiences[0]).float().to(device)
-                action = torch.from_numpy(experiences[1]).float().to(device)
-                reward = torch.from_numpy(experiences[2]).float().to(device)
-                next_state = torch.from_numpy(experiences[3]).float().to(device)
-                done = torch.from_numpy(experiences[4].astype(np.uint8)).float().to(device)
-
-                is_weights =  torch.from_numpy(is_weights).float().to(device)
-
-            else:
-                state, action_, reward, next_state, done = replay_buffer.sample(batch_size)
-                state = torch.FloatTensor(state).to(device)
-                action = torch.FloatTensor(action_).to(device)
-                reward = torch.FloatTensor(reward).reshape((batch_size,1)).to(device)
-                next_state = torch.FloatTensor(next_state).to(device)
-                done = torch.FloatTensor(done).reshape((batch_size,1)).to(device)
+            state, action_, reward, next_state, done = replay_buffer.sample(batch_size)
+            state = torch.FloatTensor(state).to(device)
+            action = torch.FloatTensor(action_).to(device)
+            reward = torch.FloatTensor(reward).reshape((batch_size,1)).to(device)
+            next_state = torch.FloatTensor(next_state).to(device)
+            done = torch.FloatTensor(done).reshape((batch_size,1)).to(device)
 
             # Select next action according to target policy:
             noise = torch.empty_like(action).data.normal_(0, policy_noise).to(device)
@@ -117,27 +99,15 @@ class TD3:
             # Optimize Critic 1:
             current_Q1 = self.critic_1(state, action)
             errors1 = np.abs((current_Q1 - target_Q).detach().cpu().numpy())
-
-            if usePER:
-                loss_Q1 = self.mse(current_Q1, target_Q, is_weights)
-            else:
-                loss_Q1 = F.mse_loss(current_Q1, target_Q)
+            loss_Q1 = F.mse_loss(current_Q1, target_Q)
 
             self.critic_1_optimizer.zero_grad()
             loss_Q1.backward()
             self.critic_1_optimizer.step()
 
-            # Update priorities in the replay buffer
-            if usePER:
-                replay_buffer.update(idxs, errors1)
-
             # Optimize Critic 2:
             current_Q2 = self.critic_2(state, action)
-
-            if usePER:
-                loss_Q2 = self.mse(current_Q2, target_Q, is_weights)
-            else:
-                loss_Q2 = F.mse_loss(current_Q2, target_Q)
+            loss_Q2 = F.mse_loss(current_Q2, target_Q)
 
             self.critic_2_optimizer.zero_grad()
             loss_Q2.backward()
