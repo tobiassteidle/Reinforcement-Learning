@@ -10,12 +10,13 @@ batch_size = 100            # num of transitions sampled from replay buffer
 polyak = 0.995              # target policy update parameter (1-tau)
 policy_noise = 0.2          # target policy smoothing noise
 noise_clip = 0.5
+exploration_noise = 0.1
 
 policy_delay = 2            # delayed policy updates parameter
-#LR_ACTOR = 0.001            # BipedalWalker-v3
-#LR_CRITIC = 0.001           # BipedalWalker-v3
-LR_ACTOR = 1e-4             # BipedalWalkerHardcore-v3
-LR_CRITIC = 1e-4            # BipedalWalkerHardcore-v3
+LR_ACTOR = 0.001            # BipedalWalker-v3
+LR_CRITIC = 0.001           # BipedalWalker-v3
+#LR_ACTOR = 1e-3             # BipedalWalkerHardcore-v3
+#LR_CRITIC = 1e-3            # BipedalWalkerHardcore-v3
 
 WEIGHT_DECAY = 0.0
 
@@ -54,7 +55,12 @@ class Critic(nn.Module):
         return q
 
 class TD3:
-    def __init__(self, state_dim, action_dim, max_action):
+    def __init__(self, env):
+        self.env = env
+
+        state_dim = env.observation_space.shape[0]
+        action_dim = env.action_space.shape[0]
+        max_action = float(env.action_space.high[0])
 
         self.actor = Actor(state_dim, action_dim, max_action).to(device)
         self.actor_target = Actor(state_dim, action_dim, max_action).to(device)
@@ -75,16 +81,22 @@ class TD3:
 
     def select_action(self, state):
         state = torch.FloatTensor(state.reshape(1, -1)).to(device)
-        return self.actor(state).cpu().data.numpy().flatten()
+        action = self.actor(state).cpu().data.numpy().flatten()
+
+        if exploration_noise != 0:
+            action = (action + np.random.normal(0, exploration_noise, size=self.env.action_space.shape[0]))
+
+        return action.clip(self.env.action_space.low, self.env.action_space.high)
 
     def update(self, replay_buffer, n_iter):
         for i in range(n_iter):
-            state, action_, reward, next_state, done = replay_buffer.sample(batch_size)
+            state, action, reward, next_state, done = replay_buffer.sample(batch_size)
+
             state = torch.FloatTensor(state).to(device)
-            action = torch.FloatTensor(action_).to(device)
-            reward = torch.FloatTensor(reward).reshape((batch_size,1)).to(device)
+            action = torch.FloatTensor(action).to(device)
+            reward = torch.FloatTensor(reward).to(device)
             next_state = torch.FloatTensor(next_state).to(device)
-            done = torch.FloatTensor(done).reshape((batch_size,1)).to(device)
+            done = torch.FloatTensor(done).to(device)
 
             # Select next action according to target policy:
             noise = torch.empty_like(action).data.normal_(0, policy_noise).to(device)
