@@ -1,7 +1,7 @@
 import numpy as np
 
 class ReplayBuffer:
-    def __init__(self, max_size=5e5):
+    def __init__(self, max_size=1000000):
         self.buffer = []
         self.max_size = int(max_size)
         self.size = 0

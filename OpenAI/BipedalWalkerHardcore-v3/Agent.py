@@ -12,8 +12,10 @@ policy_noise = 0.2          # target policy smoothing noise
 noise_clip = 0.5
 
 policy_delay = 2            # delayed policy updates parameter
-LR_ACTOR = 0.001
-LR_CRITIC = 0.001
+#LR_ACTOR = 0.001            # BipedalWalker-v3
+#LR_CRITIC = 0.001           # BipedalWalker-v3
+LR_ACTOR = 1e-4             # BipedalWalkerHardcore-v3
+LR_CRITIC = 1e-4            # BipedalWalkerHardcore-v3
 
 WEIGHT_DECAY = 0.0
 
@@ -98,7 +100,6 @@ class TD3:
 
             # Optimize Critic 1:
             current_Q1 = self.critic_1(state, action)
-            errors1 = np.abs((current_Q1 - target_Q).detach().cpu().numpy())
             loss_Q1 = F.mse_loss(current_Q1, target_Q)
 
             self.critic_1_optimizer.zero_grad()
