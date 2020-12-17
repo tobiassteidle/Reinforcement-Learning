@@ -13,10 +13,8 @@ noise_clip = 0.5
 exploration_noise = 0.1
 
 policy_delay = 2            # delayed policy updates parameter
-LR_ACTOR = 0.001            # BipedalWalker-v3
-LR_CRITIC = 0.001           # BipedalWalker-v3
-#LR_ACTOR = 1e-3             # BipedalWalkerHardcore-v3
-#LR_CRITIC = 1e-3            # BipedalWalkerHardcore-v3
+LR_ACTOR = 0.001
+LR_CRITIC = 0.001
 
 WEIGHT_DECAY = 0.0
 
