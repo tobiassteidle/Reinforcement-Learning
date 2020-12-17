@@ -2,11 +2,9 @@
 
 ### Getting Started
 The environment to the BipedalWalker is described [here](https://github.com/openai/gym/wiki/BipedalWalker-v2).  
-The environment to the Pendulum is described [here](https://github.com/openai/gym/wiki/Pendulum-v0).
 
-
-### Solution Video (from BipedalWalker-v2 Version)
-[![BipedalWalker-v2](http://img.youtube.com/vi/QW6fWP5FDoU/0.jpg)](https://www.youtube.com/watch?v=QW6fWP5FDoU "BipedalWalker-v2")
+### Solution Video
+[![BipedalWalker-v3](http://img.youtube.com/vi/14yGAsIG-Rs/0.jpg)](https://www.youtube.com/watch?v=14yGAsIG-Rs "BipedalWalker-v3")
 
 The video shows in the first part the behaviour of the untrained agent and then in comparison the behaviour of the trained agent.
 
