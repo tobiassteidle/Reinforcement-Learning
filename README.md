@@ -5,6 +5,9 @@
 #### Q - Learning
 [Taxi-v2 (Solution)](OpenAI/Taxi-v2)
 
+#### Q - Learning or SARSA
+[Taxi-v3 (Solution)](OpenAI/Taxi-v3) (Decay \varepsilon Greedy)
+
 #### Pytorch  
 [LunarLanderContinuous-v2 (Solution DDPG)](OpenAI/LunarLander-v2)  
 [MountainCarContinuous-v0 (Solution DDPG)](OpenAI/MountainCarContinuous-v0)  
