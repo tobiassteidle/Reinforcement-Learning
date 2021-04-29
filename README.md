@@ -8,8 +8,6 @@
 #### Q - Learning or SARSA
 [Taxi-v3 (Solution)](OpenAI/Taxi-v3) (Decay ε Greedy)
 
-$\alpha$
-
 #### Pytorch  
 [LunarLanderContinuous-v2 (Solution DDPG)](OpenAI/LunarLander-v2)  
 [MountainCarContinuous-v0 (Solution DDPG)](OpenAI/MountainCarContinuous-v0)  
