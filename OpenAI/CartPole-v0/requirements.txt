@@ -1,6 +1,6 @@
 prompt_toolkit==2.0.10
 matplotlib
-numpy==1.16.4
+numpy==1.22.0
 pandas
 opencv-python
 pillow
